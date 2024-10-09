@@ -47,8 +47,8 @@ UART_HandleTypeDef huart2;
 uint8_t buffer[10]; // Guarda el valor que envía la ESP32
 char valorHexaPot1; // Guarda el valor del potenciometro 1
 char valorHexaPot2; // Guarda el valor del potenciometro 2
-uint8_t cambioEstadoBTN1=0;
-uint8_t cambioEstadoBTN2=0;
+uint8_t cambioEstadoBTN1=0; // Guarda el valor de la alerta cuando se presiona el botón 1
+uint8_t cambioEstadoBTN2=0; // Guarda el valor de la alerta cuando se presiona el botón 2
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -57,7 +57,7 @@ static void MX_GPIO_Init(void);
 static void MX_USART2_UART_Init(void);
 static void MX_USART1_UART_Init(void);
 /* USER CODE BEGIN PFP */
-void mostrarNumeroHexa(char h);
+void mostrarNumeroHexa(char h); // Decide que segmento se enciende dependiendo del valor hexadecimal. Parámetro: (Char) valor hexadecimal
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
@@ -270,20 +270,20 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-	HAL_UART_Receive(&huart1, buffer, 2, 1000);
+	HAL_UART_Receive(&huart1, buffer, 2, 1000); // Comunicación con el UART 1, variable que guarda datos, guarda dos valores, sale despúes de 1 segundo.
 	if(cambioEstadoBTN1==1){
-		valorHexaPot1=buffer[0];
-		HAL_GPIO_WritePin(Tran1_GPIO_Port, Tran1_Pin, GPIO_PIN_SET);
-		HAL_GPIO_WritePin(Tran2_GPIO_Port, Tran2_Pin, GPIO_PIN_RESET);
-		mostrarNumeroHexa(valorHexaPot1);
-		cambioEstadoBTN1=0;
+		valorHexaPot1=buffer[0]; // Toma el primer dato del buffer
+		HAL_GPIO_WritePin(Tran1_GPIO_Port, Tran1_Pin, GPIO_PIN_SET); // Despliega el Display 1
+		HAL_GPIO_WritePin(Tran2_GPIO_Port, Tran2_Pin, GPIO_PIN_RESET); // Apaga el Display 2
+		mostrarNumeroHexa(valorHexaPot1); 
+		cambioEstadoBTN1=0; // Restablece el botón
 	}
 	if(cambioEstadoBTN2==1){
-		valorHexaPot2=buffer[1];
-		HAL_GPIO_WritePin(Tran1_GPIO_Port, Tran1_Pin, GPIO_PIN_RESET);
-		HAL_GPIO_WritePin(Tran2_GPIO_Port, Tran2_Pin, GPIO_PIN_SET);
+		valorHexaPot2=buffer[1]; // Toma el segundo dato del buffer
+		HAL_GPIO_WritePin(Tran1_GPIO_Port, Tran1_Pin, GPIO_PIN_RESET); // Apaga el Display 1
+		HAL_GPIO_WritePin(Tran2_GPIO_Port, Tran2_Pin, GPIO_PIN_SET); // Despliega el Display 2
 		mostrarNumeroHexa(valorHexaPot2);
-		cambioEstadoBTN2=0;
+		cambioEstadoBTN2=0; // Restablece el botón
 	}
     /* USER CODE END WHILE */
 
@@ -475,11 +475,12 @@ static void MX_GPIO_Init(void)
 /* USER CODE BEGIN 4 */
 void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 {
+// Los if deciden cuál es el botón que está presionado
 	if(GPIO_Pin==BTN1_Pin){
-		cambioEstadoBTN1=1;
+		cambioEstadoBTN1=1; // Alerta de que se presiono el botón 1
 	}
 	if(GPIO_Pin==BTN2_Pin){
-		cambioEstadoBTN2=1;
+		cambioEstadoBTN2=1; // Alerta de que se presiono el botón 1
 	}
 }
 /* USER CODE END 4 */
