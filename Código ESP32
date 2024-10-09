@@ -1,0 +1,118 @@
+/* Universidad Del Valle de Guatemala
+   Facultad de Ingeniería
+   Departamento de Electrónica, Mecatrónica y Biomédica
+   Electrónica Digital 2
+
+   Susan Daniela Guevara Catalán
+   22519
+
+   Laboratorio No. 9 - Interrupciones y UART
+
+   Parte 1: Funciones que obtienen la entrada analógica de dos potenciómetros
+*/
+
+/********** IMPORTACIÓN DE LIBRERÍAS **********/
+#include <Arduino.h>
+// Permite la transmisión de datos con la STM32
+#include <HardwareSerial.h>
+
+/********** DECLARACIÓN DE VARIABLES GLOBALES **********/
+// Pines del potenciometro
+#define Pot1 33
+#define Pot2 34
+// Configurar el puerto UART en ESP32
+HardwareSerial UART_ESP32(2);  // UART2
+//Variable que guarda el valor convertido a hexadecimal
+char valorHexadecimal;
+
+/********** PROTOTIPO DE FUNCIONES **********/
+// Convierte los valores de los potenciómetros a números hexadecimales. Parametros: Entero que recibe el valor del potenciómetro
+char conversionHexa(unsigned int valPot);
+
+/********** CONFIGURACIÓN DE PINES **********/
+void setup() {
+  // Para monitorear desde el puerto serie
+  Serial.begin(9600);  
+  // Iniciar UART2 a: 115200 baudios, configuración de datos, pin RX, pin TX
+  UART_ESP32.begin(115200, SERIAL_8N1, 16, 17); 
+  // Definición de los potenciómetros como entradas
+  pinMode(Pot1, INPUT);
+  pinMode(Pot2, INPUT);
+}
+
+/********** CÓDIGO PRINCIPAL **********/
+void loop() {
+  // Lee el valor analógico de los potenciómetros
+  unsigned int valorPot1 = analogRead(Pot1);
+  unsigned int valorPot2 = analogRead(Pot2);
+
+  // Se asigna el valor hexadecimal del potenciómetro a una variable
+  char valorHexa1 = conversionHexa(valorPot1);
+  char valorHexa2 = conversionHexa(valorPot2);
+
+  // Envía los valores a la STM32
+  UART_ESP32.print(valorHexa1);
+  UART_ESP32.print(valorHexa2);
+
+  delay(500);  // Tiempo de espera entre cada lectura
+}
+
+/********** DEFINICIÓN DE FUNCIONES **********/
+// Convierte los valores de los potenciómetros a números hexadecimales
+char conversionHexa(unsigned int valPot){
+  int numero=map(valPot, 0, 4095, 0, 15);  // Escala los 4095 a 15
+
+  switch(numero){ // Decide que número hexadecimal es
+    case 0:
+      valorHexadecimal='0';
+      break;
+    case 1:
+      valorHexadecimal='1';
+      break;
+    case 2:
+      valorHexadecimal='2';
+      break;
+    case 3:
+      valorHexadecimal='3';
+      break;
+    case 4:
+      valorHexadecimal='4';
+      break;
+    case 5:
+      valorHexadecimal='5';
+      break;
+    case 6:
+      valorHexadecimal='6';
+      break;
+    case 7:
+      valorHexadecimal='7';
+      break;
+    case 8:
+      valorHexadecimal='8';
+      break;
+    case 9:
+      valorHexadecimal='9';
+      break;
+    case 10:
+      valorHexadecimal='A';
+      break;
+    case 11:
+      valorHexadecimal='B';
+      break;
+    case 12:
+      valorHexadecimal='C';
+      break;
+    case 13:
+      valorHexadecimal='D';
+      break;
+    case 14:
+      valorHexadecimal='E';
+      break;
+    case 15:
+      valorHexadecimal='F';
+      break;
+    default:
+      break;
+  }
+  return valorHexadecimal;
+}
